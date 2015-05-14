@@ -6,23 +6,27 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.slieb.closure.dependencies.GoogDependencyCalculator;
 import org.slieb.closure.dependencies.GoogResources;
-import org.slieb.runtimes.rhino.EnvJSRuntime;
+import org.slieb.jsunit.internal.TestExecutor;
 import slieb.kute.Kute;
 import slieb.kute.api.Resource;
 import slieb.kute.api.ResourceProvider;
 
-import java.io.Reader;
-import java.util.concurrent.TimeoutException;
+import java.util.function.Predicate;
 
-import static org.slieb.jsunit.JsUnitHelper.*;
-import static org.slieb.runtimes.Runtimes.evaluateReader;
 import static slieb.kute.resources.ResourcePredicates.*;
 import static slieb.kute.resources.Resources.filterResources;
 
 
 public class JSUnitSingleTestRunner extends Runner {
 
-    public final ResourceProvider<? extends Resource.Readable> resourceProvider;
+    private Predicate<Resource> filter = all(
+            extensionFilter(".js"),
+            any(
+                    extensionFilter("env.rhino.js"),
+                    r -> r.getPath().startsWith("jdk/nashorn"),
+                    r -> r.getPath().startsWith("com/google/javascript/jscomp")
+            ).negate());
+
 
     public final Resource.Readable testResource;
 
@@ -34,25 +38,23 @@ public class JSUnitSingleTestRunner extends Runner {
         throw new IllegalStateException("not supported yet");
     }
 
+    public JSUnitSingleTestRunner(GoogDependencyCalculator calculator, Resource.Readable testResource, Integer timeoutSeconds) {
+        this.calculator = calculator;
+        this.testResource = testResource;
+        this.timeoutSeconds = timeoutSeconds;
+
+    }
+
     public JSUnitSingleTestRunner(ResourceProvider<? extends Resource.Readable> resourceProvider, Resource.Readable testResource, Integer timeoutSeconds) {
-        this.resourceProvider = resourceProvider;
         this.testResource = testResource;
         this.timeoutSeconds = timeoutSeconds;
         this.calculator = GoogResources.getCalculatorCast(resourceProvider);
     }
 
     public JSUnitSingleTestRunner(String testPath, Integer timeout) {
-        this.resourceProvider = filterResources(Kute.getDefaultProvider(),
-                all(
-                        extensionFilter(".js"),
-                        any(
-                                extensionFilter("env.rhino.js"),
-                                r -> r.getPath().startsWith("jdk/nashorn"),
-                                r -> r.getPath().startsWith("com/google/javascript/jscomp")
-                        ).negate()
-                ));
-        this.testResource = this.resourceProvider.getResourceByName(testPath);
-        this.calculator = GoogResources.getCalculatorCast(resourceProvider);
+        ResourceProvider<? extends Resource.Readable> provider = filterResources(Kute.getDefaultProvider(), filter);
+        this.calculator = GoogResources.getCalculatorCast(provider);
+        this.testResource = provider.getResourceByName(testPath);
         this.timeoutSeconds = timeout;
     }
 
@@ -64,38 +66,18 @@ public class JSUnitSingleTestRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
-        Long start = System.currentTimeMillis();
         Description description = getDescription();
-        notifier.fireTestStarted(description);
-        try (EnvJSRuntime envJSRuntime = new EnvJSRuntime()) {
-            envJSRuntime.initialize();
-
-
-            for (Resource.Readable readable : calculator.getResourcesFor(testResource)) {
-                try (Reader reader = readable.getReader()) {
-                    evaluateReader(envJSRuntime, reader, readable.getPath());
-                }
-            }
-
-            envJSRuntime.doLoad();
-            if (!isInitialized(envJSRuntime)) {
-                initialize(envJSRuntime);
-            }
-            while (!isFinished(envJSRuntime)) {
-                Long diff = System.currentTimeMillis() - start;
-                if (diff > (timeoutSeconds * 1000)) {
-                    throw new TimeoutException("Timed out at " + diff + "ms");
-                }
-                envJSRuntime.doWait(100);
-            }
-
-            if (!isSuccess(envJSRuntime)) {
+        try {
+            notifier.fireTestStarted(description);
+            TestExecutor executor = new TestExecutor(calculator, testResource, timeoutSeconds);
+            executor.execute();
+            if (!executor.isSuccess()) {
                 notifier.fireTestFailure(new Failure(description, new RuntimeException()));
             }
-
-        } catch (Exception ioException) {
-            notifier.fireTestFailure(new Failure(description, ioException));
+        } catch (Exception e) {
+            notifier.fireTestFailure(new Failure(description, e));
+        } finally {
+            notifier.fireTestFinished(description);
         }
-        notifier.fireTestFinished(description);
     }
 }

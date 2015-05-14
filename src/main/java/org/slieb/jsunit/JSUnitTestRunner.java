@@ -5,6 +5,8 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
+import org.slieb.closure.dependencies.GoogDependencyCalculator;
+import org.slieb.closure.dependencies.GoogResources;
 import org.slieb.jsunit.api.JsUnitConfig;
 import slieb.kute.Kute;
 import slieb.kute.api.Resource;
@@ -43,12 +45,13 @@ public class JSUnitTestRunner extends ParentRunner<JSUnitSingleTestRunner> {
     protected List<JSUnitSingleTestRunner> getChildren() {
         ResourceProvider<? extends Resource.Readable> resources =
                 filterResources(Kute.getDefaultProvider(), ResourcePredicates.all(JAVASCRIPT_FILTER, DEFAULT_EXCLUDES));
+        GoogDependencyCalculator calculator = GoogResources.getCalculatorCast(resources);
 
         TestClass testClass = getTestClass();
 
         if (testClass.getJavaClass().isAnnotationPresent(JsUnitConfig.class)) {
             JsUnitConfig config = testClass.getJavaClass().getAnnotation(JsUnitConfig.class);
-            return getTestProvider(resources).stream().map(testResource -> new JSUnitSingleTestRunner(resources, testResource, config.timeout())).collect(toList());
+            return getTestProvider(resources).stream().map(testResource -> new JSUnitSingleTestRunner(calculator, testResource, config.timeout())).collect(toList());
         } else {
             throw new RuntimeException("No Config.");
         }
