@@ -1,19 +1,20 @@
 package org.slieb.jsunit;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.TestClass;
+import org.slieb.jsunit.api.JsUnitConfig;
 import slieb.kute.Kute;
 import slieb.kute.api.Resource;
 import slieb.kute.api.ResourceProvider;
 import slieb.kute.resources.ResourcePredicates;
 
-import java.lang.annotation.*;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static java.util.stream.Collectors.toList;
 import static slieb.kute.resources.ResourcePredicates.extensionFilter;
 import static slieb.kute.resources.Resources.filterResources;
 
@@ -33,16 +34,6 @@ public class JSUnitTestRunner extends ParentRunner<JSUnitSingleTestRunner> {
             r -> r.getPath().startsWith("/closure-library") && r.getPath().endsWith("_test.js")
     ).negate();
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
-    public @interface Configuration {
-
-        String[] includes() default {};
-
-        String[] excludes() default {};
-
-        int timeoutSeconds() default 30;
-    }
 
     public JSUnitTestRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
@@ -53,19 +44,14 @@ public class JSUnitTestRunner extends ParentRunner<JSUnitSingleTestRunner> {
         ResourceProvider<? extends Resource.Readable> resources =
                 filterResources(Kute.getDefaultProvider(), ResourcePredicates.all(JAVASCRIPT_FILTER, DEFAULT_EXCLUDES));
 
+        TestClass testClass = getTestClass();
 
-        ImmutableList.Builder<JSUnitSingleTestRunner> builder = new ImmutableList.Builder<>();
-        for (Annotation annotation : getRunnerAnnotations()) {
-            if (Configuration.class.isAssignableFrom(annotation.getClass())) {
-                Configuration pathsAnnotation = (Configuration) annotation;
-
-                getTestProvider(resources).stream().forEach(testResource -> {
-                    System.out.println(testResource);
-                    builder.add(new JSUnitSingleTestRunner(resources, testResource, pathsAnnotation.timeoutSeconds()));
-                });
-            }
+        if (testClass.getJavaClass().isAnnotationPresent(JsUnitConfig.class)) {
+            JsUnitConfig config = testClass.getJavaClass().getAnnotation(JsUnitConfig.class);
+            return getTestProvider(resources).stream().map(testResource -> new JSUnitSingleTestRunner(resources, testResource, config.timeout())).collect(toList());
+        } else {
+            throw new RuntimeException("No Config.");
         }
-        return builder.build();
     }
 
     private ResourceProvider<? extends Resource.Readable> getTestProvider(ResourceProvider<? extends Resource.Readable> provider) {
