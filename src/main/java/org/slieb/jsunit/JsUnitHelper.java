@@ -2,7 +2,6 @@ package org.slieb.jsunit;
 
 
 import org.slieb.runtimes.JavascriptRuntime;
-import org.slieb.runtimes.Runtimes;
 
 import static java.lang.String.format;
 import static org.slieb.runtimes.Runtimes.*;
@@ -34,27 +33,27 @@ public class JsUnitHelper {
     }
 
     public static Boolean isInitialized(JavascriptRuntime runtime) {
-        return Runtimes.getBooleanFromJsRuntime(runtime, format(IS_INITIALIZED, TEST_RUNNER));
+        return getBoolean(runtime, format(IS_INITIALIZED, TEST_RUNNER));
     }
 
     public static Boolean isFinished(JavascriptRuntime runtime) {
-        return getBooleanFromJsRuntime(runtime, format(IS_FINISHED, TEST_RUNNER));
+        return getBoolean(runtime, format(IS_FINISHED, TEST_RUNNER));
     }
 
     public static Boolean isSuccess(JavascriptRuntime runtime) {
-        return getBooleanFromJsRuntime(runtime, format(IS_SUCCESS, TEST_RUNNER));
+        return getBoolean(runtime, format(IS_SUCCESS, TEST_RUNNER));
     }
 
     public static String getReport(JavascriptRuntime runtime) {
-        return getStringFromJsRuntime(runtime, format(GET_REPORT, TEST_RUNNER));
+        return getString(runtime, format(GET_REPORT, TEST_RUNNER));
     }
 
     public static Integer getRuntime(JavascriptRuntime runtime) {
-        return getIntegerFromJsRuntime(runtime, format(GET_RUNTIME, TEST_RUNNER));
+        return getInteger(runtime, format(GET_RUNTIME, TEST_RUNNER));
     }
 
     public static Integer getNumFilesLoaded(JavascriptRuntime runtime) {
-        return getIntegerFromJsRuntime(runtime, format(GET_NUM_FILES_LOADED, TEST_RUNNER));
+        return getInteger(runtime, format(GET_NUM_FILES_LOADED, TEST_RUNNER));
     }
 
     public static Object getTestResults(JavascriptRuntime runtime) {

@@ -1,4 +1,4 @@
-package org.slieb.jsunit.internal;
+package org.slieb.jsunit;
 
 
 import org.slieb.closure.dependencies.GoogDependencyCalculator;

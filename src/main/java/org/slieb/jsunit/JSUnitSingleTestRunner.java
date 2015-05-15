@@ -6,18 +6,18 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.slieb.closure.dependencies.GoogDependencyCalculator;
 import org.slieb.closure.dependencies.GoogResources;
-import org.slieb.jsunit.internal.TestExecutor;
-import slieb.kute.Kute;
+import org.slieb.jsunit.internal.CachedTestConfigurator;
 import slieb.kute.api.Resource;
 import slieb.kute.api.ResourceProvider;
 
 import java.util.function.Predicate;
 
 import static slieb.kute.resources.ResourcePredicates.*;
-import static slieb.kute.resources.Resources.filterResources;
 
 
 public class JSUnitSingleTestRunner extends Runner {
+
+    private final CachedTestConfigurator testConfigurator;
 
     private Predicate<Resource> filter = all(
             extensionFilter(".js"),
@@ -32,30 +32,22 @@ public class JSUnitSingleTestRunner extends Runner {
 
     public final GoogDependencyCalculator calculator;
 
-    public final Integer timeoutSeconds;
 
     public JSUnitSingleTestRunner(Class<?> testClass) {
         throw new IllegalStateException("not supported yet");
     }
 
-    public JSUnitSingleTestRunner(GoogDependencyCalculator calculator, Resource.Readable testResource, Integer timeoutSeconds) {
-        this.calculator = calculator;
+    public JSUnitSingleTestRunner(CachedTestConfigurator configurator, Resource.Readable testResource) {
+        this.testConfigurator = configurator;
         this.testResource = testResource;
-        this.timeoutSeconds = timeoutSeconds;
+        this.calculator = configurator.calculator();
 
     }
 
-    public JSUnitSingleTestRunner(ResourceProvider<? extends Resource.Readable> resourceProvider, Resource.Readable testResource, Integer timeoutSeconds) {
+    public JSUnitSingleTestRunner(ResourceProvider<? extends Resource.Readable> resourceProvider, Resource.Readable testResource) {
         this.testResource = testResource;
-        this.timeoutSeconds = timeoutSeconds;
         this.calculator = GoogResources.getCalculatorCast(resourceProvider);
-    }
-
-    public JSUnitSingleTestRunner(String testPath, Integer timeout) {
-        ResourceProvider<? extends Resource.Readable> provider = filterResources(Kute.getDefaultProvider(), filter);
-        this.calculator = GoogResources.getCalculatorCast(provider);
-        this.testResource = provider.getResourceByName(testPath);
-        this.timeoutSeconds = timeout;
+        this.testConfigurator = new CachedTestConfigurator(null);
     }
 
     public Description getDescription() {
@@ -69,7 +61,7 @@ public class JSUnitSingleTestRunner extends Runner {
         Description description = getDescription();
         try {
             notifier.fireTestStarted(description);
-            TestExecutor executor = new TestExecutor(calculator, testResource, timeoutSeconds);
+            TestExecutor executor = new TestExecutor(testConfigurator.calculator(), testResource, testConfigurator.getTimeout());
             executor.execute();
             if (!executor.isSuccess()) {
                 notifier.fireTestFailure(new Failure(description, new RuntimeException()));

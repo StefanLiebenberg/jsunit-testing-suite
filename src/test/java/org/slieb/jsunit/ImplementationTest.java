@@ -6,7 +6,7 @@ import org.slieb.jsunit.api.JsUnitConfig;
 
 
 @RunWith(JSUnitTestRunner.class)
-@JsUnitConfig(includes = {"**/*.js"})
+@JsUnitConfig
 public class ImplementationTest {
 
 }
