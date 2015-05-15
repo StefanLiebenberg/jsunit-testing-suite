@@ -40,7 +40,7 @@
         <dep.kute>0.6</dep.kute>
         <dep.junit>4.12</dep.junit>
         <dep.selenium>2.45.0</dep.selenium>
-
+        <dep.mockito>2.0.2-beta</dep.mockito>
     </properties>
 
     <prerequisites>
@@ -66,31 +66,28 @@
         </dependency>
 
         <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-        <version>3.0.22</version>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0.22</version>
         </dependency>
 
         <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${dep.junit}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${dep.junit}</version>
         </dependency>
 
         <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>2.0.2-beta</version>
-        <scope>test</scope>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${dep.mockito}</version>
+            <scope>test</scope>
         </dependency>
-
-
-
     </dependencies>
 
     <build>
         <plugins>
- <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>${plugin.maven-deploy-plugin}</version>
