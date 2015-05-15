@@ -10,6 +10,13 @@
     <url>http://stefanlielbenberg.github.io/jsunit-testing-suite</url>
     <name>JSunit Testing Suite</name>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -48,6 +55,40 @@
         <maven>${dep.maven}</maven>
     </prerequisites>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
+    <scm>
+        <url>https://github.com/StefanLiebenberg/kute</url>
+        <connection>
+            scm:git:git://github.com/StefanLiebenberg/kute.git
+        </connection>
+        <developerConnection>
+            scm:git:git@github.com:StefanLiebenberg/kute.git
+        </developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <email>siga.fredo@gmail.com</email>
+            <name>Stefan Liebenberg</name>
+            <url>https://github.com/StefanLiebenberg</url>
+            <id>s.liebenberg</id>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>org.slieb</groupId>
