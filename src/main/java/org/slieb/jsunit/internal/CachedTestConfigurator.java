@@ -11,7 +11,7 @@ import java.util.Collection;
 
 public class CachedTestConfigurator implements TestConfigurator {
 
-    private final ResourceProvider<? extends Resource.Readable> sourceProvider, testProvider;
+    private final ResourceProvider<Resource.Readable> sourceProvider, testProvider;
 
     private final GoogDependencyCalculator calculator;
 
@@ -29,12 +29,12 @@ public class CachedTestConfigurator implements TestConfigurator {
     }
 
     @Override
-    public ResourceProvider<? extends Resource.Readable> tests() {
+    public ResourceProvider<Resource.Readable> tests() {
         return testProvider;
     }
 
     @Override
-    public ResourceProvider<? extends Resource.Readable> sources() {
+    public ResourceProvider<Resource.Readable> sources() {
         return sourceProvider;
     }
 
@@ -49,8 +49,8 @@ class CachedCalculator extends GoogDependencyCalculator {
 
     private Collection<GoogDependencyNode> cachedNodes;
 
-    public CachedCalculator(Iterable<? extends Resource.Readable> resources) {
-        super(wrapIterable(resources));
+    public CachedCalculator(Iterable<Resource.Readable> resources) {
+        super(resources);
     }
 
     @Override

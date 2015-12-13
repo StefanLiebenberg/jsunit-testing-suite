@@ -11,13 +11,13 @@ public interface TestConfigurator {
     /**
      * @return A Resource provider that contains all relevant sources.
      */
-    ResourceProvider<? extends Resource.Readable> sources();
+    ResourceProvider<Resource.Readable> sources();
 
 
     /**
      * @return A provider that gives you the tests.
      */
-    ResourceProvider<? extends Resource.Readable> tests();
+    ResourceProvider<Resource.Readable> tests();
 
 
     /**

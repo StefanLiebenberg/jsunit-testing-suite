@@ -25,11 +25,13 @@ public class JSUnitTestRunner extends ParentRunner<JSUnitSingleTestRunner> {
 
     public JSUnitTestRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
-
         this.testConfigurator =
                 new CachedTestConfigurator(testClass.isAnnotationPresent(JsUnitConfig.class) ?
-                        new AnnotatedTestConfigurator(testClass.getAnnotation(JsUnitConfig.class), Kute.getDefaultProvider()) :
-                        new DefaultTestConfigurator(Kute.getDefaultProvider()));
+                                                   new AnnotatedTestConfigurator(
+                                                           testClass.getAnnotation(JsUnitConfig.class),
+                                                           Kute.asReadableProvider(Kute.getDefaultProvider())) :
+                                                   new DefaultTestConfigurator(
+                                                           Kute.asReadableProvider(Kute.getDefaultProvider())));
     }
 
     protected List<JSUnitSingleTestRunner> getChildren() {
@@ -46,7 +48,8 @@ public class JSUnitTestRunner extends ParentRunner<JSUnitSingleTestRunner> {
     }
 
     @Override
-    protected void runChild(JSUnitSingleTestRunner child, RunNotifier notifier) {
+    protected void runChild(JSUnitSingleTestRunner child,
+                            RunNotifier notifier) {
         child.run(notifier);
     }
 }

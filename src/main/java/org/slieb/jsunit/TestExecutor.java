@@ -2,7 +2,6 @@ package org.slieb.jsunit;
 
 
 import org.slieb.closure.dependencies.GoogDependencyCalculator;
-import org.slieb.jsunit.JsUnitHelper;
 import org.slieb.runtimes.Runtimes;
 import org.slieb.runtimes.rhino.EnvJSRuntime;
 import slieb.kute.api.Resource;

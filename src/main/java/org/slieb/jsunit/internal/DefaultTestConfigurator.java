@@ -3,13 +3,14 @@ package org.slieb.jsunit.internal;
 import org.slieb.closure.dependencies.GoogDependencyCalculator;
 import org.slieb.closure.dependencies.GoogResources;
 import org.slieb.jsunit.api.TestConfigurator;
+import slieb.kute.Kute;
 import slieb.kute.api.Resource;
 import slieb.kute.api.ResourceProvider;
 import slieb.kute.resources.ResourcePredicates;
-import slieb.kute.resources.Resources;
 
 import java.util.function.Predicate;
 
+import static slieb.kute.Kute.filterResources;
 import static slieb.kute.resources.ResourcePredicates.extensionFilter;
 
 
@@ -28,27 +29,27 @@ public class DefaultTestConfigurator implements TestConfigurator {
 
     public static final Predicate<Resource> TESTS_FILTER = extensionFilter("_test.js");
 
-    private final ResourceProvider<? extends Resource.Readable> filteredProvider;
-    private final ResourceProvider<? extends Resource.Readable> testProvider;
+    private final ResourceProvider<Resource.Readable> filteredProvider;
+    private final ResourceProvider<Resource.Readable> testProvider;
 
-    public DefaultTestConfigurator(ResourceProvider<? extends Resource.Readable> provider) {
-        this.filteredProvider = Resources.filterResources(provider, JAVASCRIPT_FILTER.and(DEFAULT_EXCLUDES));
-        this.testProvider = Resources.filterResources(this.filteredProvider, TESTS_FILTER);
+    public DefaultTestConfigurator(ResourceProvider<Resource.Readable> provider) {
+        this.filteredProvider = filterResources(provider, JAVASCRIPT_FILTER.and(DEFAULT_EXCLUDES));
+        this.testProvider = filterResources(this.filteredProvider, TESTS_FILTER);
     }
 
     @Override
-    public ResourceProvider<? extends Resource.Readable> sources() {
+    public ResourceProvider<Resource.Readable> sources() {
         return this.filteredProvider;
     }
 
     @Override
-    public ResourceProvider<? extends Resource.Readable> tests() {
+    public ResourceProvider<Resource.Readable> tests() {
         return this.testProvider;
     }
 
     @Override
     public GoogDependencyCalculator calculator() {
-        return GoogResources.getCalculatorCast(filteredProvider);
+        return GoogResources.getCalculator(Kute.asReadableProvider(filteredProvider));
     }
 
     @Override
