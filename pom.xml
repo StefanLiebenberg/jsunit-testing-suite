@@ -64,12 +64,12 @@
         <version>9</version>
     </parent>
     <scm>
-        <url>https://github.com/StefanLiebenberg/kute</url>
+        <url>https://github.com/StefanLiebenberg/jsunit-testing-suite</url>
         <connection>
-            scm:git:git://github.com/StefanLiebenberg/kute.git
+            scm:git:git://github.com/StefanLiebenberg/jsunit-testing-suite.git
         </connection>
         <developerConnection>
-            scm:git:git@github.com:StefanLiebenberg/kute.git
+            scm:git:git@github.com:StefanLiebenberg/jsunit-testing-suite.git
         </developerConnection>
     </scm>
 
