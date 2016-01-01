@@ -6,7 +6,6 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.slieb.jsunit.internal.CachedTestConfigurator;
 import slieb.kute.api.Resource;
-import slieb.kute.api.ResourceProvider;
 
 
 public class JSUnitSingleTestRunner extends Runner {
@@ -24,7 +23,7 @@ public class JSUnitSingleTestRunner extends Runner {
         this.testResource = testResource;
     }
 
-    public JSUnitSingleTestRunner(ResourceProvider<? extends Resource.Readable> resourceProvider, Resource.Readable testResource) {
+    public JSUnitSingleTestRunner(Resource.Provider resourceProvider, Resource.Readable testResource) {
         this.testResource = testResource;
         this.testConfigurator = new CachedTestConfigurator(null);
     }

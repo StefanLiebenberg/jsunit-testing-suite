@@ -27,11 +27,11 @@ public class JSUnitTestRunner extends ParentRunner<JSUnitSingleTestRunner> {
         super(testClass);
         this.testConfigurator =
                 new CachedTestConfigurator(testClass.isAnnotationPresent(JsUnitConfig.class) ?
-                                                   new AnnotatedTestConfigurator(
-                                                           testClass.getAnnotation(JsUnitConfig.class),
-                                                           Kute.asReadableProvider(Kute.getDefaultProvider())) :
-                                                   new DefaultTestConfigurator(
-                                                           Kute.asReadableProvider(Kute.getDefaultProvider())));
+                        new AnnotatedTestConfigurator(
+                                testClass.getAnnotation(JsUnitConfig.class),
+                                Kute.getDefaultProvider()) :
+                        new DefaultTestConfigurator(
+                                Kute.getDefaultProvider()));
     }
 
     protected List<JSUnitSingleTestRunner> getChildren() {

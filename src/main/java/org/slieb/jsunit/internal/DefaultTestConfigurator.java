@@ -3,53 +3,50 @@ package org.slieb.jsunit.internal;
 import org.slieb.closure.dependencies.GoogDependencyCalculator;
 import org.slieb.closure.dependencies.GoogResources;
 import org.slieb.jsunit.api.TestConfigurator;
-import slieb.kute.Kute;
+import slieb.kute.KuteLambdas;
 import slieb.kute.api.Resource;
-import slieb.kute.api.ResourceProvider;
-import slieb.kute.resources.ResourcePredicates;
-
-import java.util.function.Predicate;
+import slieb.kute.api.ResourcePredicate;
 
 import static slieb.kute.Kute.filterResources;
-import static slieb.kute.resources.ResourcePredicates.extensionFilter;
+import static slieb.kute.KuteLambdas.extensionFilter;
 
 
 public class DefaultTestConfigurator implements TestConfigurator {
 
-    public static final Predicate<Resource> JAVASCRIPT_FILTER = extensionFilter(".js");
+    public static final ResourcePredicate<Resource> JAVASCRIPT_FILTER = extensionFilter(".js");
 
-    public static final Predicate<Resource> DEFAULT_EXCLUDES = ResourcePredicates.any(
+    public static final ResourcePredicate<Resource> DEFAULT_EXCLUDES = KuteLambdas.any(
             extensionFilter("env.rhino.js"),
             r -> r.getPath().startsWith("jdk/nashorn"),
             r -> r.getPath().endsWith("load.rhino.js"),
             r -> r.getPath().startsWith("com/google/javascript/jscomp"),
             r -> r.getPath().startsWith("com/google/javascript/refactoring"),
             r -> r.getPath().startsWith("/closure-library") && r.getPath().endsWith("_test.js")
-    ).negate();
+    ).negate()::test;
 
-    public static final Predicate<Resource> TESTS_FILTER = extensionFilter("_test.js");
+    public static final ResourcePredicate<Resource> TESTS_FILTER = extensionFilter("_test.js");
 
-    private final ResourceProvider<Resource.Readable> filteredProvider;
-    private final ResourceProvider<Resource.Readable> testProvider;
+    private final Resource.Provider filteredProvider;
+    private final Resource.Provider testProvider;
 
-    public DefaultTestConfigurator(ResourceProvider<Resource.Readable> provider) {
-        this.filteredProvider = filterResources(provider, JAVASCRIPT_FILTER.and(DEFAULT_EXCLUDES));
+    public DefaultTestConfigurator(Resource.Provider provider) {
+        this.filteredProvider = filterResources(provider, KuteLambdas.all(JAVASCRIPT_FILTER, DEFAULT_EXCLUDES));
         this.testProvider = filterResources(this.filteredProvider, TESTS_FILTER);
     }
 
     @Override
-    public ResourceProvider<Resource.Readable> sources() {
+    public Resource.Provider sources() {
         return this.filteredProvider;
     }
 
     @Override
-    public ResourceProvider<Resource.Readable> tests() {
+    public Resource.Provider tests() {
         return this.testProvider;
     }
 
     @Override
     public GoogDependencyCalculator calculator() {
-        return GoogResources.getCalculator(Kute.asReadableProvider(filteredProvider));
+        return GoogResources.getCalculator(filteredProvider);
     }
 
     @Override

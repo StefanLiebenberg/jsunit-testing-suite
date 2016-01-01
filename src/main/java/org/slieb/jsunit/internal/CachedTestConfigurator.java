@@ -5,13 +5,12 @@ import org.slieb.closure.dependencies.GoogDependencyCalculator;
 import org.slieb.closure.dependencies.GoogDependencyNode;
 import org.slieb.jsunit.api.TestConfigurator;
 import slieb.kute.api.Resource;
-import slieb.kute.api.ResourceProvider;
 
 import java.util.Collection;
 
 public class CachedTestConfigurator implements TestConfigurator {
 
-    private final ResourceProvider<Resource.Readable> sourceProvider, testProvider;
+    private final Resource.Provider sourceProvider, testProvider;
 
     private final GoogDependencyCalculator calculator;
 
@@ -29,12 +28,12 @@ public class CachedTestConfigurator implements TestConfigurator {
     }
 
     @Override
-    public ResourceProvider<Resource.Readable> tests() {
+    public Resource.Provider tests() {
         return testProvider;
     }
 
     @Override
-    public ResourceProvider<Resource.Readable> sources() {
+    public Resource.Provider sources() {
         return sourceProvider;
     }
 

@@ -5,10 +5,9 @@ import org.slieb.closure.dependencies.GoogDependencyCalculator;
 import org.slieb.closure.dependencies.GoogResources;
 import org.slieb.jsunit.api.JsUnitConfig;
 import org.slieb.jsunit.api.TestConfigurator;
+import slieb.kute.KuteLambdas;
 import slieb.kute.api.Resource;
-import slieb.kute.api.ResourceProvider;
-
-import java.util.function.Predicate;
+import slieb.kute.api.ResourcePredicate;
 
 import static org.slieb.jsunit.internal.DefaultTestConfigurator.*;
 import static slieb.kute.Kute.filterResources;
@@ -16,30 +15,30 @@ import static slieb.kute.Kute.filterResources;
 
 public class AnnotatedTestConfigurator implements TestConfigurator {
 
-    private final ResourceProvider<Resource.Readable> defaultProvider, defaultTestProvider;
+    private final Resource.Provider defaultProvider, defaultTestProvider;
 
     private final GoogDependencyCalculator calc;
 
     private final Integer timeout;
 
     public AnnotatedTestConfigurator(JsUnitConfig config,
-                                     ResourceProvider<Resource.Readable> provider) {
-        this.defaultProvider = filterResources(provider, JAVASCRIPT_FILTER
-                .and(DEFAULT_EXCLUDES)
-                .and(getPredicate(config.includes(), config.excludes())));
-        this.defaultTestProvider = filterResources(this.defaultProvider, TESTS_FILTER.and(
-                getPredicate(config.testIncludes(), config.testExcludes())));
+                                     Resource.Provider provider) {
+        this.defaultProvider = filterResources(provider, KuteLambdas.all(
+                JAVASCRIPT_FILTER,
+                DEFAULT_EXCLUDES, getPredicate(config.includes(), config.excludes())));
+        this.defaultTestProvider = filterResources(this.defaultProvider,
+                KuteLambdas.all(TESTS_FILTER, getPredicate(config.testIncludes(), config.testExcludes())));
         this.calc = GoogResources.getCalculator(this.defaultProvider);
         this.timeout = config.timeout();
     }
 
     @Override
-    public ResourceProvider< Resource.Readable> sources() {
+    public Resource.Provider sources() {
         return defaultProvider;
     }
 
     @Override
-    public ResourceProvider<Resource.Readable> tests() {
+    public Resource.Provider tests() {
         return defaultTestProvider;
     }
 
@@ -53,10 +52,10 @@ public class AnnotatedTestConfigurator implements TestConfigurator {
         return calc;
     }
 
-    private static Predicate<Resource> getPredicate(String[] includes,
-                                                    String[] excludes) {
+    private static ResourcePredicate<Resource> getPredicate(String[] includes,
+                                                            String[] excludes) {
 
-        Predicate<Resource> predicate = (r) -> true;
+        ResourcePredicate<Resource> predicate = (r) -> true;
 
         boolean shouldUseInclude = includes.length > 0, shouldUseExclude = excludes.length > 0;
         if (!shouldUseInclude && !shouldUseExclude) {
@@ -70,7 +69,7 @@ public class AnnotatedTestConfigurator implements TestConfigurator {
 
         if (shouldUseExclude) {
             MatchPatterns excludePatterns = MatchPatterns.from(excludes);
-            predicate = predicate.and(resource -> !excludePatterns.matches(resource.getPath(), true));
+            predicate = KuteLambdas.all(predicate, resource -> !excludePatterns.matches(resource.getPath(), true));
         }
 
         return predicate;
